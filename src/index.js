@@ -110,4 +110,16 @@ app.get("/statement/date", verifyIfExistsAccountDocument, (request, response) =>
     return response.json(statement);
 });
 
+app.put("/account", verifyIfExistsAccountDocument, (request, response) => {
+    const { name } = request.body;
+    const { customer } = request;
+
+    const index = customers.findIndex((item) => item.document === customer.document);
+
+    customers[index].name = name;
+    customer.name = name;
+
+    return response.status(200).send();
+});
+
 app.listen(3333);
