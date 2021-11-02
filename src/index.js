@@ -7,6 +7,22 @@ app.use(express.json())
 
 const customers = [];
 
+function verifyIfExistsAccountDocument(request, response, next) {
+    const { document } = request.headers;
+
+    const customer = customers.find((customer) => customer.document === document);
+
+    if (!customer) {
+        return response.status(400).json({
+            error: "Customer not found."
+        });
+    }
+
+    request.customer = customer;
+
+    return next();
+}
+
 app.post("/account", (request, response) => {
     const { document, name } = request.body;
 
@@ -28,16 +44,8 @@ app.post("/account", (request, response) => {
     return response.status(201).send();
 });
 
-app.get("/statement/:document", (request, response) => {
-    const { document } = request.params;
-
-    const customer = customers.find((customer) => customer.document === document);
-
-    if (!customer) {
-        return response.status(400).json({
-            error: "Customer not found."
-        });
-    }
+app.get("/statement", verifyIfExistsAccountDocument, (request, response) => {
+    const { customer } = request;
 
     return response.json(customer.statement);
 });
